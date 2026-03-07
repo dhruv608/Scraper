@@ -19,9 +19,9 @@ class BrowserService {
     try {
       console.log(`Initializing browser pool with ${this.maxPoolSize} instances...`);
       
-      // Vercel-specific configuration
+      // Vercel serverless-specific configuration
       const launchOptions = {
-        headless: true,
+        headless: 'new',
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -31,8 +31,18 @@ class BrowserService {
           '--no-zygote',
           '--single-process',
           '--disable-gpu',
-          '--window-size=1920,1080'
-        ]
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding',
+          '--disable-features=TranslateUI',
+          '--disable-ipc-flooding-protection',
+          '--window-size=1920,1080',
+          '--memory-pressure-off'
+        ],
+        executablePath: process.platform === 'linux' ? 
+          '/usr/bin/google-chrome-stable' : 
+          undefined,
+        timeout: 30000
       };
 
       const browser = await puppeteer.launch(launchOptions);

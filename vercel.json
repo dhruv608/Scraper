@@ -1,11 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "src/server.js",
-      "use": "@vercel/node"
+  "functions": {
+    "src/server.js": {
+      "maxDuration": 60
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/(.*)",
@@ -22,6 +21,8 @@
   ],
   "env": {
     "NODE_ENV": "production",
-    "BROWSER_POOL_SIZE": "2"
+    "BROWSER_POOL_SIZE": "1",
+    "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true",
+    "PUPPETEER_EXECUTABLE_PATH": "/usr/bin/google-chrome-stable"
   }
 }
