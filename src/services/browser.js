@@ -19,9 +19,10 @@ class BrowserService {
     try {
       console.log(`Initializing browser pool with ${this.maxPoolSize} instances...`);
       
-      // Vercel serverless-specific configuration
+      // Show browser for debugging (remove headless)
       const launchOptions = {
-        headless: 'new',
+        headless: false, // SHOW BROWSER!
+        slowMo: 50, // Slow motion for visibility
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -37,7 +38,8 @@ class BrowserService {
           '--disable-features=TranslateUI',
           '--disable-ipc-flooding-protection',
           '--window-size=1920,1080',
-          '--memory-pressure-off'
+          '--memory-pressure-off',
+          '--start-maximized'
         ],
         executablePath: process.platform === 'linux' ? 
           '/usr/bin/google-chrome-stable' : 
@@ -50,7 +52,7 @@ class BrowserService {
       this.availableBrowsers.push(browser);
 
       this.isInitialized = true;
-      console.log('Browser pool initialized successfully');
+      console.log('Browser pool initialized successfully - BROWSER IS VISIBLE!');
 
     } catch (error) {
       console.error('Failed to initialize browser pool:', error);

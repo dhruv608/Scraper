@@ -116,23 +116,27 @@ class LeetCodeScraper {
 
   async extractRecentSolved(page) {
     try {
-      console.log('Extracting recent solved problems...');
+      console.log('🔍 Extracting recent solved problems...');
+      console.log('👀 Browser is VISIBLE - watch it work!');
       
       // Wait for React to render and Recent AC section to load
       try {
         await page.waitForSelector('a[href*="/submissions/detail/"]', { timeout: 10000 });
+        console.log('✅ Found submission detail links!');
       } catch (e) {
-        console.log('Submission links not found within timeout, continuing...');
+        console.log('⚠️ Submission links not found within timeout, continuing...');
       }
       
       // Scroll page to load all recent submissions
-      console.log('Scrolling page to load all recent submissions...');
+      console.log('📜 Scrolling page to load all recent submissions...');
       
       let previousHeight = 0;
       let scrollAttempts = 0;
       const maxScrollAttempts = 10;
       
       while (scrollAttempts < maxScrollAttempts) {
+        console.log(`📜 Scroll attempt ${scrollAttempts + 1}...`);
+        
         // Scroll to bottom
         await page.evaluate(() => {
           window.scrollTo(0, document.body.scrollHeight);
@@ -145,7 +149,7 @@ class LeetCodeScraper {
         const currentHeight = await page.evaluate(() => document.body.scrollHeight);
         
         if (currentHeight === previousHeight) {
-          console.log('Page height stable, scrolling complete');
+          console.log('📏 Page height stable, scrolling complete');
           break;
         }
         
@@ -165,7 +169,8 @@ class LeetCodeScraper {
         
         // Only look for submission detail links - these are the recent AC problems
         const submissionLinks = document.querySelectorAll('a[href*="/submissions/detail/"]');
-        console.log(`Found ${submissionLinks.length} submission links`);
+        console.log(`🔗 Found ${submissionLinks.length} submission links`);
+        console.log('👀 Watch browser find these links!');
         
         const problems = [];
         
@@ -177,6 +182,7 @@ class LeetCodeScraper {
             const firstLine = text.split('\n')[0].trim();
             
             if (firstLine && firstLine.length > 0) {
+              console.log(`📝 Found problem: "${firstLine}"`);
               problems.push(firstLine);
             }
           }
