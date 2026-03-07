@@ -1,20 +1,30 @@
 {
-  "name": "gfg-scraper-simple",
+  "name": "multi-platform-scraper",
   "version": "1.0.0",
-  "description": "Simple free GFG scraper for single user",
-  "main": "src/server-simple.js",
+  "description": "Multi-platform scraper API for LeetCode and GeeksforGeeks profiles",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/server-simple.js",
-    "dev": "nodemon src/server-simple.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "start:production": "node src/server-production.js"
   },
-  "keywords": ["scraper", "geeksforgeeks", "free", "simple"],
+  "keywords": [
+    "scraper",
+    "leetcode",
+    "geeksforgeeks",
+    "api",
+    "puppeteer",
+    "multi-platform"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.6.0",
     "express": "^4.18.2",
+    "express-rate-limit": "^8.3.0",
+    "puppeteer": "^21.5.2",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "puppeteer": "^21.5.2"
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

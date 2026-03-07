@@ -1,14 +1,14 @@
 const express = require('express');
-const leetcodeScraper = require('../scrapers/leetcodeScraper');
+const gfgScraper = require('../scrapers/gfgScraper');
 const browserService = require('../services/browser');
 
 const router = express.Router();
 
-// Simple in-memory cache for LeetCode
+// Simple in-memory cache for GFG
 const cache = new Map();
 
 // Main endpoint
-router.get('/leetcode/:username', async (req, res) => {
+router.get('/gfg/:username', async (req, res) => {
   const { username } = req.params;
   
   if (!username || username.trim().length === 0) {
@@ -23,40 +23,33 @@ router.get('/leetcode/:username', async (req, res) => {
   try {
     // Check cache first
     if (cache.has(cleanUsername)) {
-      console.log(`🚀 Cache hit for LeetCode ${cleanUsername}`);
+      console.log(`🚀 Cache hit for ${cleanUsername}`);
       return res.json(cache.get(cleanUsername));
     }
     
-    console.log(`🔍 Scraping LeetCode ${cleanUsername}...`);
+    console.log(`🔍 Scraping ${cleanUsername}...`);
     
-    const profileData = await leetcodeScraper.scrapeProfile(cleanUsername);
+    const profileData = await gfgScraper.scrapeProfile(cleanUsername);
     
     // Cache for 10 minutes
     cache.set(cleanUsername, profileData);
     
-    // Clean old cache entries
+    // Clean old cache entries periodically
     setTimeout(() => {
       cache.delete(cleanUsername);
     }, 600000); // 10 minutes
     
-    console.log(`✅ LeetCode Success: ${profileData.totalSolved} solved, ${profileData.recentSolved.length} recent`);
+    console.log(`✅ Success: ${profileData.totalSolved} problems found`);
     
     res.json(profileData);
     
   } catch (error) {
-    console.error(`❌ LeetCode Error for ${username}:`, error.message);
+    console.error(`❌ Error for ${username}:`, error);
     
     if (error.message.includes('Profile not found')) {
       return res.status(404).json({
         error: 'Profile not found',
-        message: `The LeetCode profile '${username}' does not exist`
-      });
-    }
-    
-    if (error.message.includes('timeout')) {
-      return res.status(504).json({
-        error: 'Request timeout',
-        message: 'The request took too long to complete. Please try again.'
+        message: `The GFG profile '${username}' does not exist`
       });
     }
     
@@ -67,14 +60,16 @@ router.get('/leetcode/:username', async (req, res) => {
   }
 });
 
-// Health check for LeetCode scraper
-router.get('/leetcode/health', (req, res) => {
+// Health check
+router.get('/api/gfg/health', (req, res) => {
   res.json({
     status: 'OK',
-    service: 'LeetCode Scraper',
+    service: 'GFG Scraper',
     cache_size: cache.size,
     uptime: Math.floor(process.uptime())
   });
 });
+
+module.exports = router;
 
 module.exports = router;
