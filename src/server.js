@@ -2,6 +2,7 @@ const express = require('express');
 const gfgRoutes = require('./routes/gfgRoutes');
 const leetcodeRoutes = require('./routes/leetcodeRoutes');
 const healthRoutes = require('./routes/healthRoutes');
+const simpleRoutes = require('./routes/simpleRoutes');
 const browserService = require('./services/browser');
 
 const app = express();
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
 app.use('/api', gfgRoutes);
 app.use('/api', leetcodeRoutes);
 app.use('/api', healthRoutes);
+app.use('/api', simpleRoutes);
 
 // Root info
 app.get('/', (req, res) => {
