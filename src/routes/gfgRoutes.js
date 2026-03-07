@@ -21,13 +21,16 @@ router.get('/gfg/:username', async (req, res) => {
   const cleanUsername = username.trim();
   
   try {
+    console.log(`🎬 Starting GFG scrape for ${cleanUsername} - BROWSER WILL BE VISIBLE!`);
+    
     // Check cache first
     if (cache.has(cleanUsername)) {
-      console.log(`🚀 Cache hit for ${cleanUsername}`);
+      console.log(`🚀 Cache hit for GFG ${cleanUsername}`);
       return res.json(cache.get(cleanUsername));
     }
     
-    console.log(`🔍 Scraping ${cleanUsername}...`);
+    console.log(`🔍 Scraping GFG ${cleanUsername}...`);
+    console.log(`👀 Watch the browser window - it will open and scrape live!`);
     
     const profileData = await gfgScraper.scrapeProfile(cleanUsername);
     
@@ -39,12 +42,12 @@ router.get('/gfg/:username', async (req, res) => {
       cache.delete(cleanUsername);
     }, 600000); // 10 minutes
     
-    console.log(`✅ Success: ${profileData.totalSolved} problems found`);
+    console.log(`✅ GFG Success: ${profileData.totalSolved} solved`);
     
     res.json(profileData);
     
   } catch (error) {
-    console.error(`❌ Error for ${username}:`, error);
+    console.error(`❌ GFG Error for ${username}:`, error);
     
     if (error.message.includes('Profile not found')) {
       return res.status(404).json({

@@ -21,6 +21,8 @@ router.get('/leetcode/:username', async (req, res) => {
   const cleanUsername = username.trim();
   
   try {
+    console.log(`🎬 Starting LeetCode scrape for ${cleanUsername} - BROWSER WILL BE VISIBLE!`);
+    
     // Check cache first
     if (cache.has(cleanUsername)) {
       console.log(`🚀 Cache hit for LeetCode ${cleanUsername}`);
@@ -28,13 +30,14 @@ router.get('/leetcode/:username', async (req, res) => {
     }
     
     console.log(`🔍 Scraping LeetCode ${cleanUsername}...`);
+    console.log(`👀 Watch the browser window - it will open and scrape live!`);
     
     const profileData = await leetcodeScraper.scrapeProfile(cleanUsername);
     
     // Cache for 10 minutes
     cache.set(cleanUsername, profileData);
     
-    // Clean old cache entries
+    // Clean old cache entries periodically
     setTimeout(() => {
       cache.delete(cleanUsername);
     }, 600000); // 10 minutes
