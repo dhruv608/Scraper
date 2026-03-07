@@ -19,10 +19,12 @@ class BrowserService {
     try {
       console.log('🌐 Initializing single browser instance...');
       
-      // Show browser for debugging (remove headless)
+      // Use headless mode for production, visible for local debugging
+      const isLocal = process.env.NODE_ENV !== 'production';
+      
       const launchOptions = {
-        headless: false, // SHOW BROWSER!
-        slowMo: 50, // Slow motion for visibility
+        headless: isLocal ? false : 'new', // Only show browser locally
+        slowMo: isLocal ? 50 : 0, // Slow motion only for local debugging
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -39,7 +41,7 @@ class BrowserService {
           '--disable-ipc-flooding-protection',
           '--window-size=1920,1080',
           '--memory-pressure-off',
-          '--start-maximized'
+          isLocal ? '--start-maximized' : '--window-size=1920,1080'
         ],
         executablePath: process.platform === 'linux' ? 
           '/usr/bin/google-chrome-stable' : 
@@ -54,7 +56,7 @@ class BrowserService {
       await this.page.setViewport({ width: 1920, height: 1080 });
       
       this.isInitialized = true;
-      console.log('✅ Single browser instance initialized - REUSABLE!');
+      console.log(`✅ Single browser instance initialized - ${isLocal ? 'VISIBLE' : 'HEADLESS'}!`);
 
     } catch (error) {
       console.error('Failed to initialize browser:', error);
