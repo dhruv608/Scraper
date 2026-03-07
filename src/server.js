@@ -1,6 +1,7 @@
 const express = require('express');
 const gfgRoutes = require('./routes/gfgRoutes');
 const leetcodeRoutes = require('./routes/leetcodeRoutes');
+const debugRoutes = require('./routes/debugRoutes');
 const browserService = require('./services/browser');
 
 const app = express();
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 // Register routes
 app.use('/api', gfgRoutes);
 app.use('/api', leetcodeRoutes);
+app.use('/api', debugRoutes);
 
 // Root info
 app.get('/', (req, res) => {
@@ -28,11 +30,13 @@ app.get('/', (req, res) => {
     message: '🎯 Multi-Platform Scraper API',
     platforms: {
       gfg: 'GET /api/gfg/:username',
-      leetcode: 'GET /api/leetcode/:username'
+      leetcode: 'GET /api/leetcode/:username',
+      debug: 'GET /api/debug/leetcode/:username (VISIBLE BROWSER!)'
     },
     examples: {
       gfg: 'GET /api/gfg/striver',
-      leetcode: 'GET /api/leetcode/dhruv608'
+      leetcode: 'GET /api/leetcode/dhruv608',
+      debug: 'GET /api/debug/leetcode/dhruv608 (WATCH BROWSER!)'
     },
     cache: '10 minutes',
     performance: 'First: ~60s, Cached: ~0.1s'
