@@ -25,6 +25,7 @@ app.use('/api', gfgRoutes);
 app.use('/api', leetcodeRoutes);
 app.use('/api', healthRoutes);
 app.use('/api', simpleRoutes);
+app.use('/api', simpleRoutes);
 
 // Root info
 app.get('/', (req, res) => {
@@ -34,7 +35,9 @@ app.get('/', (req, res) => {
       gfg: 'GET /api/gfg/:username',
       leetcode: 'GET /api/leetcode/:username',
       health: 'GET /api/health',
-      test: 'GET /api/test'
+      simple: 'GET /api/simple/leetcode/:username',
+      'simple-gfg': 'GET /api/simple/gfg/:username',
+      'simple-health': 'GET /api/simple-health'
     },
     examples: {
       gfg: 'GET /api/gfg/striver',
