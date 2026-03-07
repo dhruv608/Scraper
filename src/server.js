@@ -1,7 +1,7 @@
 const express = require('express');
 const gfgRoutes = require('./routes/gfgRoutes');
 const leetcodeRoutes = require('./routes/leetcodeRoutes');
-const debugRoutes = require('./routes/debugRoutes');
+const healthRoutes = require('./routes/healthRoutes');
 const browserService = require('./services/browser');
 
 const app = express();
@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 // Register routes
 app.use('/api', gfgRoutes);
 app.use('/api', leetcodeRoutes);
-app.use('/api', debugRoutes);
+app.use('/api', healthRoutes);
 
 // Root info
 app.get('/', (req, res) => {
@@ -31,7 +31,8 @@ app.get('/', (req, res) => {
     platforms: {
       gfg: 'GET /api/gfg/:username',
       leetcode: 'GET /api/leetcode/:username',
-      debug: 'GET /api/debug/leetcode/:username (VISIBLE BROWSER!)'
+      health: 'GET /api/health',
+      test: 'GET /api/test'
     },
     examples: {
       gfg: 'GET /api/gfg/striver',
