@@ -1,0 +1,22 @@
+{
+  "name": "gfg-scraper-simple",
+  "version": "1.0.0",
+  "description": "Simple free GFG scraper for single user",
+  "main": "src/server-simple.js",
+  "scripts": {
+    "start": "node src/server-simple.js",
+    "dev": "nodemon src/server-simple.js"
+  },
+  "keywords": ["scraper", "geeksforgeeks", "free", "simple"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "puppeteer": "^21.5.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
