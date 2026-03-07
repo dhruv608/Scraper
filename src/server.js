@@ -6,6 +6,9 @@ const browserService = require('./services/browser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Vercel serverless export
+module.exports = app;
+
 // Middleware
 app.use(express.json());
 app.use((req, res, next) => {
