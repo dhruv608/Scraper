@@ -23,10 +23,5 @@
   "env": {
     "NODE_ENV": "production",
     "BROWSER_POOL_SIZE": "2"
-  },
-  "functions": {
-    "src/server.js": {
-      "maxDuration": 60
-    }
   }
 }
