@@ -1,7 +1,8 @@
 const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
-puppeteer.use(StealthPlugin());
+// Remove stealth plugin for Vercel compatibility
+// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+// puppeteer.use(StealthPlugin());
 
 class BrowserService {
   constructor() {
