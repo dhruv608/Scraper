@@ -5,19 +5,19 @@ puppeteer.use(StealthPlugin());
 
 class BrowserService {
   constructor() {
-    this.browsers = [];
-    this.availableBrowsers = [];
-    this.maxPoolSize = 1; // Reduced for Vercel serverless
+    this.browser = null; // Single browser instance
+    this.page = null;  // Single page instance
     this.isInitialized = false;
   }
 
   async initialize() {
-    if (this.isInitialized) {
+    if (this.isInitialized && this.browser) {
+      console.log('🔄 Reusing existing browser instance');
       return;
     }
 
     try {
-      console.log(`Initializing browser pool with ${this.maxPoolSize} instances...`);
+      console.log('🌐 Initializing single browser instance...');
       
       // Show browser for debugging (remove headless)
       const launchOptions = {
@@ -47,63 +47,66 @@ class BrowserService {
         timeout: 30000
       };
 
-      const browser = await puppeteer.launch(launchOptions);
-      this.browsers.push(browser);
-      this.availableBrowsers.push(browser);
-
+      this.browser = await puppeteer.launch(launchOptions);
+      this.page = await this.browser.newPage();
+      
+      // Set viewport
+      await this.page.setViewport({ width: 1920, height: 1080 });
+      
       this.isInitialized = true;
-      console.log('Browser pool initialized successfully - BROWSER IS VISIBLE!');
+      console.log('✅ Single browser instance initialized - REUSABLE!');
 
     } catch (error) {
-      console.error('Failed to initialize browser pool:', error);
+      console.error('Failed to initialize browser:', error);
       throw error;
     }
-  }
-
-  async getPageFromBrowser(browser) {
-    const page = await browser.newPage();
-    
-    // Set viewport
-    await page.setViewport({ width: 1920, height: 1080 });
-    
-    // Set timeouts
-    page.setDefaultTimeout(45000);
-    page.setDefaultNavigationTimeout(45000);
-    
-    return page;
   }
 
   async getPage() {
     await this.initialize();
     
-    if (this.availableBrowsers.length > 0) {
-      const browser = this.availableBrowsers.pop();
-      return await this.getPageFromBrowser(browser);
+    // Return the single page instance
+    if (this.page) {
+      console.log('🔄 Reusing existing page instance');
+      return this.page;
     }
     
-    // If no browsers available, use the first one
-    return await this.getPageFromBrowser(this.browsers[0]);
+    // If no page exists, create one
+    this.page = await this.browser.newPage();
+    await this.page.setViewport({ width: 1920, height: 1080 });
+    
+    return this.page;
   }
 
   async releasePage(page) {
     try {
-      await page.close();
+      // Don't close the page - just clear it for reuse
+      await page.evaluate(() => {
+        // Clear page content for next use
+        document.body.innerHTML = '';
+      });
+      console.log('🧹 Page cleared for reuse');
     } catch (error) {
-      console.error('Error closing page:', error);
+      console.error('Error clearing page:', error);
     }
   }
 
   async close() {
     try {
-      for (const browser of this.browsers) {
-        await browser.close();
+      if (this.page) {
+        await this.page.close();
+        this.page = null;
       }
-      this.browsers = [];
-      this.availableBrowsers = [];
+      
+      if (this.browser) {
+        await this.browser.close();
+        this.browser = null;
+      }
+      
       this.isInitialized = false;
-      console.log('Browser pool closed successfully');
+      console.log('🔒 Single browser instance closed');
     } catch (error) {
-      console.error('Error closing browser pool:', error);
+      console.error('Error closing browser:', error);
     }
   }
 }

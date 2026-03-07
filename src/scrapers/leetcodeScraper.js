@@ -1,115 +1,105 @@
 const browserService = require('../services/browser');
 
 class LeetCodeScraper {
-  constructor() {
-    this.baseUrl = 'https://leetcode.com/u';
-  }
-
   async scrapeProfile(username) {
-    const page = await browserService.getPage();
+    let page = null;
     
     try {
-      const url = `${this.baseUrl}/${username}/`;
-      console.log(`Scraping LeetCode profile: ${url}`);
-
-      console.log('Starting navigation...');
-      let response;
-      try {
-        response = await page.goto(url, { 
-          waitUntil: 'domcontentloaded', 
-          timeout: 60000 
-        });
-      } catch (navError) {
-        console.log('Navigation failed:', navError.message);
-        throw new Error('Profile not found');
-      }
+      console.log(`🔍 Starting scrape for ${username}...`);
       
-      console.log('Navigation completed, status:', response?.status());
+      // Get page from single browser instance
+      page = await browserService.getPage();
       
-      if (!response) {
-        console.log('No response received');
-        throw new Error('Profile not found');
-      }
+      console.log(`🌐 Opening LeetCode profile for ${username}...`);
       
-      if (response.status() === 404) {
-        console.log('Response status is 404');
-        throw new Error('Profile not found');
-      }
-
-      console.log('Waiting for page to load...');
-      await page.waitForTimeout(5000);
-
-      const pageContent = await page.content();
+      // Go to profile page
+      const profileUrl = `https://leetcode.com/u/${username}/`;
+      await page.goto(profileUrl, { waitUntil: 'networkidle2' });
       
-      if (pageContent.length < 1000) {
-        console.log('Page content too short, likely 404');
-        throw new Error('Profile not found');
-      }
-
-      // Extract total solved count
+      console.log(`📄 Page loaded: ${profileUrl}`);
+      
+      // Wait for page to load
+      await page.waitForTimeout(3000);
+      
+      // Extract total solved
       const totalSolved = await this.extractTotalSolved(page);
       
-      // Extract recent solved problems
+      // Extract recent solved with visual debugging
       const recentSolved = await this.extractRecentSolved(page);
-
-      return {
+      
+      const result = {
         username,
         platform: 'leetcode',
         totalSolved,
         recentSolved
       };
-
+      
+      console.log(`✅ Scraping completed for ${username}:`, result);
+      
+      // Release page for reuse (don't close browser)
+      await browserService.releasePage(page);
+      
+      return result;
+      
     } catch (error) {
-      console.error(`Error scraping profile ${username}:`, error);
+      console.error(`❌ Error scraping ${username}:`, error);
       
-      if (error.message.includes('Profile not found') || error.message.includes('404')) {
-        throw new Error('Profile not found');
+      // Release page if error
+      if (page) {
+        await browserService.releasePage(page);
       }
       
-      if (error.message.includes('Navigation timeout') || error.message.includes('Navigating frame was detached')) {
-        throw new Error('Failed to load profile page. The user may not exist or the page structure has changed.');
-      }
-      
-      throw new Error(`Scraping failed: ${error.message}`);
-    } finally {
-      try {
-        await browserService.closePage(page);
-      } catch (closeError) {
-        console.warn('Error closing page:', closeError);
-      }
+      throw error;
     }
   }
 
   async extractTotalSolved(page) {
     try {
-      console.log('Extracting total solved count...');
+      console.log('🔢 Looking for total solved count...');
+      
+      // Wait for stats to load
+      await page.waitForTimeout(2000);
       
       const totalSolved = await page.evaluate(() => {
-        // Look for text pattern like "197 / 3860 solved"
-        const elements = document.querySelectorAll('*');
+        // Look for stats in various possible locations
+        const selectors = [
+          '[data-e2e-locator="total-solved"]',
+          '.text-label',
+          '[class*="solved"]',
+          '[class*="stat"]'
+        ];
         
-        for (const el of elements) {
-          const text = el.innerText || el.textContent;
-          if (text && text.includes('solved')) {
-            const match = text.match(/(\d+)\s*\/\s*\d+\s*solved/i);
+        for (const selector of selectors) {
+          const element = document.querySelector(selector);
+          if (element) {
+            const text = element.innerText || element.textContent;
+            const match = text.match(/(\d+)\s*\/\s*\d+/);
             if (match) {
+              console.log(`📊 Found total in selector ${selector}:`, match[1]);
               return parseInt(match[1]);
             }
           }
         }
         
-        return null;
-      });
-
-      if (totalSolved) {
-        console.log(`Found total solved: ${totalSolved}`);
-        return totalSolved;
-      } else {
-        console.log('Total solved count not found, using default 0');
+        // Fallback: look for any numbers in stats section
+        const statsElements = document.querySelectorAll('[class*="stat"], [class*="solved"]');
+        for (const elem of statsElements) {
+          const text = elem.innerText || elem.textContent;
+          const numbers = text.match(/\d+/g);
+          if (numbers && numbers.length > 0) {
+            console.log(`📈 Found numbers in stats:`, numbers);
+            return parseInt(numbers[0]);
+          }
+        }
+        
         return 0;
-      }
+      });
+      
+      console.log(`🎯 Total solved extracted: ${totalSolved}`);
+      return totalSolved;
+      
     } catch (error) {
-      console.error('Error extracting total solved:', error);
+      console.error('❌ Error extracting total solved:', error);
       return 0;
     }
   }
@@ -194,15 +184,15 @@ class LeetCodeScraper {
           .filter(p => p.length > 2 && p.length < 100) // Reasonable problem name length
           .slice(0); // Remove ALL limits to get all problems
         
-        console.log('Final problems from Recent AC:', uniqueProblems);
+        console.log('🎯 Final problems found:', uniqueProblems);
         return uniqueProblems;
       });
 
-      console.log(`Found ${recentSolved.length} recent solved problems`);
+      console.log(`✅ Recent solved extracted: ${recentSolved.length} problems`);
       return recentSolved;
       
     } catch (error) {
-      console.error('Error extracting recent solved:', error);
+      console.error('❌ Error extracting recent solved:', error);
       return [];
     }
   }
