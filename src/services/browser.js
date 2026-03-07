@@ -23,8 +23,8 @@ class BrowserService {
       const isLocal = process.env.NODE_ENV !== 'production';
       
       const launchOptions = {
-        headless: isLocal ? false : 'new', // Only show browser locally
-        slowMo: isLocal ? 50 : 0, // Slow motion only for local debugging
+        headless: isLocal ? false : true, // Local: visible, Production: true (not 'new')
+        slowMo: isLocal ? 50 : 0, // Local: slow motion, Production: fast
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -67,17 +67,26 @@ class BrowserService {
   async getPage() {
     await this.initialize();
     
-    // Return the single page instance
+    // Return single page instance
     if (this.page) {
       console.log('🔄 Reusing existing page instance');
       return this.page;
     }
     
     // If no page exists, create one
-    this.page = await this.browser.newPage();
-    await this.page.setViewport({ width: 1920, height: 1080 });
-    
-    return this.page;
+    try {
+      this.page = await this.browser.newPage();
+      await this.page.setViewport({ width: 1920, height: 1080 });
+      
+      // Set timeouts for serverless reliability
+      this.page.setDefaultTimeout(30000); // 30 seconds
+      this.page.setDefaultNavigationTimeout(30000);
+      
+      return this.page;
+    } catch (error) {
+      console.error('Error creating new page:', error);
+      throw error;
+    }
   }
 
   async releasePage(page) {
