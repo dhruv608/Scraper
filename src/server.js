@@ -57,7 +57,7 @@ const startServer = async () => {
     
     app.listen(PORT, () => {
       console.log(`\n🌟 Multi-Platform Scraper running on http://localhost:${PORT}`);
-      console.log(`📖 GFG Usage: curl http://localhost:${PORT}/api/gfg/striver`);
+      console.log(`📖 GFG Usage: curl http://localhost:${PORT}/api/gfg/dhruv608`);
       console.log(`📖 LeetCode Usage: curl http://localhost:${PORT}/api/leetcode/dhruv608`);
       console.log(`💡 First request takes ~60 seconds, then cached for 10 minutes\n`);
     });
