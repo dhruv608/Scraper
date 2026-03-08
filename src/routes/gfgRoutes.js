@@ -75,4 +75,4 @@ router.get('/api/gfg/health', (req, res) => {
 
 module.exports = router;
 
-module.exports = router;
+

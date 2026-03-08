@@ -20,6 +20,7 @@ class BrowserService {
     try {
       console.log('🌐 Initializing single browser instance...');
       
+<<<<<<< Updated upstream
       // Use headless mode for production, visible for local debugging only
       const isDevelopment = process.env.NODE_ENV === 'development';
       
@@ -55,6 +56,42 @@ class BrowserService {
       
       // Set viewport
       await this.page.setViewport({ width: 1920, height: 1080 });
+=======
+      for (let i = 0; i < this.maxPoolSize; i++) {
+        const browser = await puppeteer.launch({
+          headless: "new", // Fix deprecation warning
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-background-networking',
+            '--disable-default-apps',
+            '--disable-extensions',
+            '--disable-sync',
+            '--disable-translate',
+            '--hide-scrollbars',
+            '--metrics-recording-only',
+            '--mute-audio',
+            '--no-default-browser-check',
+            '--window-size=1920,1080',
+            '--memory-pressure-off',
+            '--max_old_space_size=4096'
+          ]
+        });
+        
+        this.browsers.push(browser);
+        this.availableBrowsers.push(browser);
+      }
+>>>>>>> Stashed changes
       
       this.isInitialized = true;
       console.log(`✅ Single browser instance initialized - ${isDevelopment ? 'VISIBLE' : 'HEADLESS'}!`);
